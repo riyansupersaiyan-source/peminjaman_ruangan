@@ -1,15 +1,16 @@
 FROM php:8.1-cli
 
-# Install dependencies + SSL
+# Install dependencies + SSL certificates
 RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev curl libssl-dev pkg-config \
+    git unzip libzip-dev curl libssl-dev pkg-config ca-certificates \
+    && update-ca-certificates \
     && docker-php-ext-install zip
 
-# Install MongoDB extension (dengan SSL support)
+# Install MongoDB extension
 RUN pecl install mongodb \
     && docker-php-ext-enable mongodb
 
-# Install Node.js (untuk Vite)
+# Install Node.js (Vite)
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs
 
@@ -27,7 +28,7 @@ RUN composer install --no-dev --optimize-autoloader
 RUN npm install
 RUN npm run build
 
-# Permission
+# Permission fix
 RUN chmod -R 775 storage bootstrap/cache
 
 # Clear config
